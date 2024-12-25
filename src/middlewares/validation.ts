@@ -1,18 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
+import { sendErrorResponse } from "../utils/responseUtils";
 
 export const validateRequest = (schema: Joi.ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  console.log("validating...",schema);
+  return (req: Request, res: Response) => {
     const { error } = schema.validate(req.body);
-
     if (error) {
-      return res.status(400).json({
-        errors: error.details.map((err) => ({
-          message: err.message,
-          path: err.path,
-        })),
-      });
+      sendErrorResponse(res, error.message, null, 400);
+      return;
     }
-    next();
   };
 };

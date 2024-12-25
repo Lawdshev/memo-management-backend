@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import jwt from "jsonwebtoken"
 
 export interface IUser extends Document {
   name: string;
@@ -6,6 +7,7 @@ export interface IUser extends Document {
   password: string;
   role: "user" | "admin"; // Role-based access control
   createdAt: Date;
+  generateToken:()=>string
 }
 
 const UserSchema: Schema = new Schema(
@@ -17,5 +19,15 @@ const UserSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
+UserSchema.methods.generateToken = function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET!, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+  return token;
+};
+
+
 
 export default mongoose.model<IUser>("User", UserSchema);
