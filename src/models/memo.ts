@@ -1,24 +1,52 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IMemo extends Document {
   title: string;
   content: string;
-  createdBy: mongoose.Schema.Types.ObjectId; // Reference to User
-  tags?: string[]; // Optional tags for categorization
-  isPrivate: boolean; // True if memo is private
-  createdAt: Date;
-  updatedAt: Date;
+  owner: Types.ObjectId; 
+  sharedWith?: Types.ObjectId[];
+  tags?: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  isDraft?: boolean;
 }
 
-const MemoSchema: Schema = new Schema(
+const memoSchema = new Schema<IMemo>(
   {
-    title: { type: String, required: true },
-    content: { type: String, required: true },
-    createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    tags: { type: [String] },
-    isPrivate: { type: Boolean, default: true },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+    },
+    content: {
+      type: String,
+      required: [true, "Content is required"],
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    sharedWith: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    tags: {
+      type: [String],
+      default: [],
+    },
+    isDraft: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.model<IMemo>("Memo", MemoSchema);
+const Memo = mongoose.model<IMemo>("Memo", memoSchema);
+
+export default Memo;

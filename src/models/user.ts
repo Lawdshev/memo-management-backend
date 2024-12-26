@@ -7,7 +7,9 @@ export interface IUser extends Document {
   password: string;
   role: "user" | "admin"; // Role-based access control
   createdAt: Date;
-  generateToken:()=>string
+  generateToken:()=>string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?:Date|number
 }
 
 const UserSchema: Schema = new Schema(
@@ -16,6 +18,8 @@ const UserSchema: Schema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+     resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );

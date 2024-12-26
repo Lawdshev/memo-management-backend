@@ -6,11 +6,12 @@ export const sendSuccessResponse = (
   data: any = null,
   statusCode: number = 200
 ) => {
-  return res.status(statusCode).json({
+   res.status(statusCode).json({
     success: true,
     message,
     data,
   });
+  return
 };
 
 export const sendErrorResponse = (
@@ -19,9 +20,10 @@ export const sendErrorResponse = (
   errors: any = null,
   statusCode: number = 400
 ) => {
-  return res.status(statusCode).json({
+   res.status(statusCode).json({
     success: false,
     message,
     errors,
   });
+  return
 };

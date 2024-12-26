@@ -5,6 +5,10 @@ const userQueries = {
     const user = await User.findOne({ email });
     return user;
   },
+  findUserById: async (id: string) => {
+    const user = await User.findById(id).select("-password");
+    return user;
+  },
 };
 
-export default userQueries;
+export default userQueries; 
