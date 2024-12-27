@@ -14,7 +14,7 @@ const getDraftMemos = async (req: Request, res: Response) => {
 
     const [draftMemos, totalItems] = await Promise.all([
       memoQueries.getDraftsByOwner(user, page, pageSize),
-      memoQueries.findMemosCount({ owner: user._id, isDraft: true }),
+      memoQueries.findMemosCount({ owner: user._id, isDraft: true }, user),
     ]);
       
     return sendSuccessResponse(

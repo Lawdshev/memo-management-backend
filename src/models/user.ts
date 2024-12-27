@@ -5,11 +5,14 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  role: "user" | "admin"; // Role-based access control
+  role: "user" | "admin";
   createdAt: Date;
   generateToken:()=>string;
   resetPasswordToken?: string;
-  resetPasswordExpires?:Date|number
+  resetPasswordExpires?: Date | number;
+  isVerified?: boolean,
+  hiddenMemos?: mongoose.Types.ObjectId[];
+  softDelete?: boolean
 }
 
 const UserSchema: Schema = new Schema(
@@ -18,8 +21,11 @@ const UserSchema: Schema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
-     resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+    isVerified: { type: Boolean, default: false },
+    hiddenMemos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Memo" }],
+    softDelete: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

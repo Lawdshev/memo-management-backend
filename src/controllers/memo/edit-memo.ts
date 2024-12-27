@@ -18,7 +18,7 @@ const editMemo = async (req: Request, res: Response) => {
 
     const memoOwner = await memoQueries.getMemoOwner(id);
     if (memoOwner?._id !== (req as any).user._id) {
-      sendErrorResponse(res, "Unauthorized", "You are not the owner of this memo", 401);
+      sendErrorResponse(res, "Unauthorized", "You are not authorized to edit this memo", 401);
       return;
     }
 

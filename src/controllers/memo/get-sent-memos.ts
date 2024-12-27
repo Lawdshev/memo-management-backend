@@ -14,9 +14,9 @@ const getSentMemos = async (req: Request, res: Response) => {
 
     const [sentMemos, totalItems] = await Promise.all([
       memoQueries.getMemosByOwner(user, page, pageSize),
-      memoQueries.findMemosCount({ owner: user._id, isDraft: false }),
+      memoQueries.findMemosCount({ owner: user._id, isDraft: false }, user),
     ]);
-    return sendSuccessResponse(
+    return sendSuccessResponse( 
       res,
       "Sent memos retrieved successfully",
       {

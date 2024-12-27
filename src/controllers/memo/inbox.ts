@@ -14,9 +14,9 @@ const getInbox = async (req: Request, res: Response) => {
       
     const [inboxMemos, totalItems] = await Promise.all([
       memoQueries.getMemosSentToUser(user, page, pageSize),
-      memoQueries.findMemosCount({ sharedWith: user._id }),
+      memoQueries.findMemosCount({ sharedWith: user._id }, user),
     ]);
-
+    
     return sendSuccessResponse(
       res,
       "Inbox memos retrieved successfully",

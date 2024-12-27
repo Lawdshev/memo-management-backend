@@ -2,12 +2,12 @@ import { Response, Request } from "express";
 import memoQueries from "../../utils/memo-queries";
 import { sendErrorResponse, sendSuccessResponse } from "../../utils/responseUtils";
 
-const deleteMemo = async (req: Request, res: Response) => {
+const permanentDelete = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const memoOwner = await memoQueries.getMemoOwner(id);
     if (memoOwner?._id !== (req as any).user._id) {
-      sendErrorResponse(res, "Unauthorized", "You are not the owner of this memo", 401);
+      sendErrorResponse(res, "Unauthorized", "You are not authorized to delete this memo", 401);
     }
 
     const memo = await memoQueries.deleteMemo(id);
@@ -22,4 +22,4 @@ const deleteMemo = async (req: Request, res: Response) => {
   }
 };
 
-export default deleteMemo
+export default permanentDelete

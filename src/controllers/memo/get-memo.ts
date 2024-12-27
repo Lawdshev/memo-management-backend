@@ -8,7 +8,7 @@ import {
 const getMemoById = async (req: Request, res: Response) => {
   try {
     const memoId = req.params.id;
-    const memo = await memoQueries.getUserMemoById(memoId, (req as any).user._id);
+    const memo = await memoQueries.getUserMemoById(memoId, (req as any).user);
 
     if (!memo) {
       return sendErrorResponse(
