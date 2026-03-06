@@ -17,7 +17,7 @@ const editMemo = async (req: Request, res: Response) => {
     }
 
     const memoOwner = await memoQueries.getMemoOwner(id);
-    if (memoOwner?._id !== (req as any).user._id) {
+    if (!memoOwner || memoOwner.toString() !== (req as any).user._id.toString()) {
       sendErrorResponse(res, "Unauthorized", "You are not authorized to edit this memo", 401);
       return;
     }
@@ -26,9 +26,11 @@ const editMemo = async (req: Request, res: Response) => {
     memo.content = content || memo.content;
     memo.tags = tags || memo.tags;
     memo.isDraft =
-      memo.sharedWith?.length === 0 && sharedWith?.length > 0
+      sharedWith?.length > 0
+        ? false
+        : sharedWith?.length === 0
         ? true
-        : isDraft || memo.isDraft;
+        : isDraft ?? memo.isDraft;
     memo.sharedWith = sharedWith || memo.sharedWith;
     await memo.save();
 
