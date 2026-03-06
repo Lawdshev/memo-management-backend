@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memo Management – Frontend Page Designs</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+    }
+
+    /* ─── Table of Contents / Navigation ───────────────────────────────── */
+    #toc {
+      position: fixed;
+      top: 0; left: 0;
+      width: 220px; height: 100vh;
+      background: #1a1a2e;
+      color: #e0e0f0;
+      padding: 24px 16px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    #toc h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #9090b0; margin-bottom: 16px; }
+    #toc a {
+      display: block;
+      padding: 7px 10px;
+      color: #c0c0e0;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 3px;
+      transition: background .15s, color .15s;
+    }
+    #toc a:hover, #toc a.active { background: #6c63ff22; color: #a78bfa; }
+    #toc .section-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
+      color: #6060a0; margin: 14px 0 5px 10px;
+    }
+
+    /* ─── Main Canvas ───────────────────────────────────────────────────── */
+    main {
+      margin-left: 220px;
+      padding: 40px 32px;
+      max-width: 1200px;
+    }
+
+    .page-section {
+      margin-bottom: 80px;
+      scroll-margin-top: 20px;
+    }
+    .page-section h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+    .page-section .meta {
+      font-size: 13px;
+      color: #6060a0;
+      margin-bottom: 20px;
+    }
+    .page-section .meta span {
+      display: inline-block;
+      background: #ede9fe;
+      color: #6c63ff;
+      border-radius: 20px;
+      padding: 2px 10px;
+      margin-right: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ─── Mock Browser Chrome ───────────────────────────────────────────── */
+    .browser {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+    .browser-bar {
+      background: #f1f3f4;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .browser-dots { display: flex; gap: 6px; }
+    .browser-dots span {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .browser-dots span:nth-child(1) { background: #ff5f57; }
+    .browser-dots span:nth-child(2) { background: #ffbd2e; }
+    .browser-dots span:nth-child(3) { background: #27c93f; }
+    .browser-url {
+      flex: 1;
+      background: #fff;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      color: #555;
+      border: 1px solid #ddd;
+    }
+    .browser-content {
+      min-height: 460px;
+    }
+
+    /* ─── App Shell (sidebar + content) ────────────────────────────────── */
+    .app-shell {
+      display: flex;
+      min-height: 460px;
+    }
+    .app-sidebar {
+      width: 220px;
+      background: #1a1a2e;
+      color: #c0c0e0;
+      padding: 20px 0;
+      flex-shrink: 0;
+    }
+    .app-sidebar .logo {
+      padding: 0 20px 20px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #a78bfa;
+      border-bottom: 1px solid #ffffff12;
+      margin-bottom: 12px;
+    }
+    .app-sidebar .logo span { color: #7c3aed; }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: #9090b8;
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 3px solid transparent;
+      transition: all .15s;
+    }
+    .sidebar-nav a.active, .sidebar-nav a:hover {
+      color: #a78bfa;
+      background: #a78bfa10;
+      border-left-color: #a78bfa;
+    }
+    .sidebar-nav .icon { font-size: 16px; }
+    .sidebar-user {
+      margin-top: auto;
+      padding: 14px 20px 0;
+      border-top: 1px solid #ffffff12;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #6c63ff, #a78bfa);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 13px;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name { font-size: 13px; color: #c0c0e0; }
+    .sidebar-user .role { font-size: 11px; color: #7060a0; }
+
+    /* ─── Page Content Area ─────────────────────────────────────────────── */
+    .page-content {
+      flex: 1;
+      padding: 28px 32px;
+      background: #f7f8fc;
+      overflow: hidden;
+    }
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-header h1 { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .page-header .subtitle { font-size: 13px; color: #8080a0; margin-top: 2px; }
+
+    /* ─── Auth Pages ────────────────────────────────────────────────────── */
+    .auth-page {
+      min-height: 460px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+    .auth-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 48px rgba(0,0,0,.3);
+    }
+    .auth-card .logo-area {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .auth-card .logo-area .icon {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .auth-card .logo-area h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .auth-card .logo-area p {
+      font-size: 13px;
+      color: #8080a0;
+      margin-top: 4px;
+    }
+
+    /* ─── Form Elements ─────────────────────────────────────────────────── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #4040608;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #606080;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e0e0ec;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: #f9f9fd;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .form-input.focus { border-color: #6c63ff; background: #fff; }
+    .form-input.filled { border-color: #c0b8f8; }
+    textarea.form-input { resize: vertical; min-height: 120px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6c63ff, #a78bfa);
+      color: #fff;
+      width: 100%;
+      padding: 12px;
+    }
+    .btn-secondary {
+      background: #f0f0fc;
+      color: #6c63ff;
+      border: 1.5px solid #ddddf8;
+    }
+    .btn-danger {
+      background: #fff0f0;
+      color: #e04040;
+      border: 1.5px solid #f8d8d8;
+    }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+    .btn-icon { padding: 8px; border-radius: 8px; background: #f0f0fc; color: #6c63ff; border: none; }
+
+    .form-link {
+      text-align: center;
+      font-size: 13px;
+      color: #8080a0;
+      margin-top: 14px;
+    }
+    .form-link a { color: #6c63ff; text-decoration: none; font-weight: 600; }
+
+    /* ─── Table ─────────────────────────────────────────────────────────── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: #9090b0;
+      padding: 8px 12px;
+      border-bottom: 2px solid #eee;
+    }
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f8;
+      font-size: 13px;
+      color: #333350;
+    }
+    .data-table tr:hover td { background: #f7f5ff; }
+
+    /* ─── Cards & Memo Items ────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #eeeef8;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .memo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid #f0f0f8;
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .memo-item:last-child { border-bottom: none; }
+    .memo-item:hover { background: #faf9ff; }
+    .memo-item.unread .memo-sender { font-weight: 700; color: #1a1a2e; }
+    .memo-item.unread .memo-title { font-weight: 700; color: #1a1a2e; }
+    .memo-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #6c63ff; margin-top: 6px; flex-shrink: 0;
+    }
+    .memo-dot.read { background: transparent; border: 2px solid #d0d0e8; }
+    .memo-body { flex: 1; min-width: 0; }
+    .memo-sender { font-size: 13px; color: #555570; margin-bottom: 3px; }
+    .memo-title { font-size: 14px; color: #444460; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .memo-preview { font-size: 12px; color: #9090b0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+    .memo-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-direction: column; align-items: flex-end; }
+    .memo-time { font-size: 11px; color: #a0a0c0; }
+    .tag {
+      display: inline-block;
+      background: #ede9fe;
+      color: #7c3aed;
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .tag.draft { background: #fef9e7; color: #d4a017; }
+    .tag.sent { background: #e8f5e9; color: #2e7d32; }
+
+    /* ─── Search Bar ────────────────────────────────────────────────────── */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1.5px solid #e0e0ec;
+      border-radius: 8px;
+      padding: 8px 14px;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .search-bar input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: transparent;
+    }
+    .search-bar .icon { color: #9090b0; }
+
+    /* ─── Stats Cards ───────────────────────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px;
+      border: 1px solid #eeeef8;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .stat-card .stat-label { font-size: 12px; color: #9090b0; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .stat-card .stat-value { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+    .stat-card .stat-icon { font-size: 28px; float: right; opacity: .3; }
+
+    /* ─── Memo View (single) ────────────────────────────────────────────── */
+    .memo-view { background: #fff; border-radius: 10px; padding: 28px; border: 1px solid #eeeef8; }
+    .memo-view .mv-subject { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; }
+    .memo-view .mv-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f8; }
+    .memo-view .mv-meta .avatar { width: 38px; height: 38px; }
+    .memo-view .mv-meta .from { font-size: 13px; }
+    .memo-view .mv-meta .from strong { color: #1a1a2e; display: block; }
+    .memo-view .mv-meta .from span { color: #9090b0; font-size: 12px; }
+    .memo-view .mv-body { font-size: 14px; color: #444460; line-height: 1.7; }
+    .memo-view .mv-tags { margin-top: 20px; display: flex; gap: 8px; }
+
+    /* ─── Profile Page ──────────────────────────────────────────────────── */
+    .profile-header {
+      display: flex; align-items: center; gap: 20px;
+      background: #fff; border-radius: 10px; padding: 24px;
+      border: 1px solid #eeeef8; margin-bottom: 20px;
+    }
+    .profile-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #6c63ff, #a78bfa);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 28px; font-weight: 700;
+    }
+    .profile-info h2 { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .profile-info p { font-size: 13px; color: #8080a0; margin-top: 4px; }
+    .profile-badge {
+      display: inline-block;
+      background: #e8f5e9; color: #2e7d32;
+      border-radius: 20px; padding: 2px 10px; font-size: 12px;
+      font-weight: 600; margin-top: 6px;
+    }
+
+    /* ─── Pagination ─────────────────────────────────────────────────────── */
+    .pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 16px 0;
+    }
+    .page-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #e0e0ec;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: #555570; background: #fff; cursor: pointer;
+    }
+    .page-btn.active { background: #6c63ff; color: #fff; border-color: #6c63ff; }
+
+    /* ─── Toast / Alert ─────────────────────────────────────────────────── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-success { background: #e8f5e9; color: #2e7d32; }
+    .alert-error   { background: #fff0f0; color: #c62828; }
+    .alert-info    { background: #e8eaf6; color: #3949ab; }
+
+    /* ─── User List ─────────────────────────────────────────────────────── */
+    .user-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f8;
+    }
+    .user-card:last-child { border-bottom: none; }
+    .user-card .info { flex: 1; }
+    .user-card .info .name { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+    .user-card .info .email { font-size: 12px; color: #9090b0; }
+    .role-badge {
+      font-size: 11px; padding: 2px 9px; border-radius: 20px;
+      background: #ede9fe; color: #6c63ff; font-weight: 600;
+    }
+
+    /* ─── Top bar ───────────────────────────────────────────────────────── */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: #fff;
+      border-bottom: 1px solid #eeeeF8;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .top-bar h2 { font-size: 16px; font-weight: 600; color: #1a1a2e; }
+
+    /* ─── Compose multi-recipient select ────────────────────────────────── */
+    .recipient-chips {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      border: 1.5px solid #e0e0ec; border-radius: 8px;
+      padding: 8px 10px; background: #f9f9fd; min-height: 44px;
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #ede9fe; color: #6c63ff;
+      border-radius: 20px; padding: 3px 10px; font-size: 12px; font-weight: 500;
+    }
+    .chip .remove { cursor: pointer; color: #a78bfa; }
+
+    /* ─── TOC separator ─────────────────────────────────────────────────── */
+    hr.toc-sep { border: none; border-top: 1px solid #ffffff15; margin: 10px 0; }
+
+    /* ─── Skeleton loader (for illustration) ───────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f8 25%, #e8e8f4 50%, #f0f0f8 75%);
+      border-radius: 4px;
+    }
+
+    /* ─── Divider ───────────────────────────────────────────────────────── */
+    .divider { height: 1px; background: #eeeef8; margin: 20px 0; }
+
+    /* ─── Responsive helper ─────────────────────────────────────────────── */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    .ml-auto { margin-left: auto; }
+    .text-sm { font-size: 13px; }
+    .text-xs { font-size: 11px; }
+    .text-muted { color: #9090b0; }
+    .bold { font-weight: 700; }
+
+    /* ─── Heading banner ───────────────────────────────────────────────── */
+    .doc-header {
+      text-align: center;
+      padding: 48px 0 40px;
+      margin-bottom: 48px;
+      border-bottom: 2px solid #eeeef8;
+    }
+    .doc-header h1 { font-size: 34px; font-weight: 800; color: #1a1a2e; }
+    .doc-header p { font-size: 16px; color: #8080a0; margin-top: 10px; }
+    .doc-header .badges { margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge-purple { background: #ede9fe; color: #6c63ff; }
+    .badge-green  { background: #e8f5e9; color: #2e7d32; }
+    .badge-blue   { background: #e8eaf6; color: #3949ab; }
+
+    /* ─── Scrollbar ─────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c0c0d8; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     TABLE OF CONTENTS SIDEBAR
+════════════════════════════════════════════════════════════════════════ -->
+<nav id="toc">
+  <h2>Pages</h2>
+
+  <div class="section-label">Auth</div>
+  <a href="#page-login">01 · Login</a>
+  <a href="#page-register">02 · Register</a>
+  <a href="#page-forgot">03 · Forgot Password</a>
+  <a href="#page-reset">04 · Reset Password</a>
+
+  <hr class="toc-sep">
+
+  <div class="section-label">Memos</div>
+  <a href="#page-inbox">05 · Inbox</a>
+  <a href="#page-sent">06 · Sent</a>
+  <a href="#page-drafts">07 · Drafts</a>
+  <a href="#page-compose">08 · Compose</a>
+  <a href="#page-view-memo">09 · View Memo</a>
+  <a href="#page-edit-memo">10 · Edit Memo</a>
+
+  <hr class="toc-sep">
+
+  <div class="section-label">Users</div>
+  <a href="#page-profile">11 · Profile</a>
+  <a href="#page-users">12 · User Directory</a>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════════════════ -->
+<main>
+
+  <!-- ── Document Header ──────────────────────────────────────────────── -->
+  <div class="doc-header">
+    <h1>📋 Memo Management — Frontend Page Designs</h1>
+    <p>Visual wireframes for all pages derived from the backend API documentation.</p>
+    <div class="badges">
+      <span class="badge badge-purple">12 Pages</span>
+      <span class="badge badge-green">REST API</span>
+      <span class="badge badge-blue">JWT Auth</span>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 01 · LOGIN
+       API: POST /api/auth/login  →  { token }
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-login">
+    <h2>01 · Login</h2>
+    <div class="meta">
+      <span>POST /api/auth/login</span>
+      Authenticate with email &amp; password to receive a JWT token.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/login</div>
+      </div>
+      <div class="browser-content">
+        <div class="auth-page">
+          <div class="auth-card">
+            <div class="logo-area">
+              <span class="icon">📋</span>
+              <h1>MemoApp</h1>
+              <p>Sign in to your account</p>
+            </div>
+
+            <div class="form-group">
+              <label>Email Address</label>
+              <input class="form-input filled" type="email" value="alice@example.com" readonly />
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input class="form-input" type="password" placeholder="••••••••" readonly />
+            </div>
+
+            <div style="text-align:right; margin-bottom:16px;">
+              <a href="#page-forgot" style="font-size:13px; color:#6c63ff; text-decoration:none;">Forgot password?</a>
+            </div>
+
+            <button class="btn btn-primary">Sign In →</button>
+
+            <div class="form-link">
+              Don't have an account? <a href="#page-register">Register</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 02 · REGISTER
+       API: POST /api/auth/register  →  { name, email, role }
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-register">
+    <h2>02 · Register</h2>
+    <div class="meta">
+      <span>POST /api/auth/register</span>
+      Create a new user account (name ≥3 chars, password ≥6 chars).
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/register</div>
+      </div>
+      <div class="browser-content">
+        <div class="auth-page">
+          <div class="auth-card">
+            <div class="logo-area">
+              <span class="icon">📋</span>
+              <h1>MemoApp</h1>
+              <p>Create a new account</p>
+            </div>
+
+            <div class="form-group">
+              <label>Full Name</label>
+              <input class="form-input" type="text" placeholder="Alice Johnson" readonly />
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input class="form-input" type="email" placeholder="alice@example.com" readonly />
+            </div>
+            <div class="form-group">
+              <label>Password <span style="font-weight:400;color:#b0b0c0;">(min 6 characters)</span></label>
+              <input class="form-input" type="password" placeholder="••••••••" readonly />
+            </div>
+
+            <button class="btn btn-primary">Create Account</button>
+
+            <div class="form-link">
+              Already have an account? <a href="#page-login">Sign in</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 03 · FORGOT PASSWORD
+       API: POST /api/auth/forgot-password  →  sends reset email
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-forgot">
+    <h2>03 · Forgot Password</h2>
+    <div class="meta">
+      <span>POST /api/auth/forgot-password</span>
+      Request a password-reset link by email (token expires in 15 min).
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/forgot-password</div>
+      </div>
+      <div class="browser-content">
+        <div class="auth-page">
+          <div class="auth-card">
+            <div class="logo-area">
+              <span class="icon">🔑</span>
+              <h1>Forgot Password?</h1>
+              <p>Enter your email and we'll send you a reset link.</p>
+            </div>
+
+            <div class="alert alert-info">
+              ℹ️ The reset link expires in <strong>15 minutes</strong>.
+            </div>
+
+            <div class="form-group">
+              <label>Email Address</label>
+              <input class="form-input" type="email" placeholder="alice@example.com" readonly />
+            </div>
+
+            <button class="btn btn-primary">Send Reset Link</button>
+
+            <div class="form-link">
+              Remembered it? <a href="#page-login">Back to Login</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 04 · RESET PASSWORD
+       API: POST /api/auth/reset-password/:token
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-reset">
+    <h2>04 · Reset Password</h2>
+    <div class="meta">
+      <span>POST /api/auth/reset-password/:token</span>
+      Set a new password using the token from the reset email.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/reset-password/abc123token</div>
+      </div>
+      <div class="browser-content">
+        <div class="auth-page">
+          <div class="auth-card">
+            <div class="logo-area">
+              <span class="icon">🔒</span>
+              <h1>Set New Password</h1>
+              <p>Choose a strong password for your account.</p>
+            </div>
+
+            <div class="alert alert-success">✅ Your reset link is valid. Set your new password below.</div>
+
+            <div class="form-group">
+              <label>New Password <span style="font-weight:400;color:#b0b0c0;">(min 6 characters)</span></label>
+              <input class="form-input" type="password" placeholder="New password" readonly />
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input class="form-input" type="password" placeholder="Repeat password" readonly />
+            </div>
+
+            <button class="btn btn-primary">Reset Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 05 · INBOX
+       API: GET /api/memo/inbox?page=1&limit=10  (auth required)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-inbox">
+    <h2>05 · Inbox</h2>
+    <div class="meta">
+      <span>GET /api/memo/inbox</span>
+      Paginated list of memos received by the authenticated user.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/inbox</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <!-- Sidebar -->
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox" class="active"><span class="icon">📥</span> Inbox <span style="margin-left:auto;background:#6c63ff;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;">3</span></a>
+              <a href="#page-sent"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts"><span class="icon">📝</span> Drafts</a>
+              <a href="#page-compose"><span class="icon">✏️</span> Compose</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="page-content">
+            <div class="page-header">
+              <div>
+                <h1>Inbox</h1>
+                <div class="subtitle">3 unread · 14 total</div>
+              </div>
+              <a href="#page-compose" class="btn btn-secondary btn-sm">✏️ Compose</a>
+            </div>
+
+            <div class="search-bar">
+              <span class="icon">🔍</span>
+              <input type="text" placeholder="Search memos…" readonly />
+            </div>
+
+            <div class="card">
+              <!-- Unread -->
+              <div class="memo-item unread">
+                <div class="memo-dot"></div>
+                <div class="memo-body">
+                  <div class="memo-sender">Bob Smith</div>
+                  <div class="memo-title">Q4 Budget Review — Action Required</div>
+                  <div class="memo-preview">Please review the attached figures and respond by Friday with your department's allocation request…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">10:42 AM</span>
+                  <span class="tag">finance</span>
+                </div>
+              </div>
+              <!-- Unread -->
+              <div class="memo-item unread">
+                <div class="memo-dot"></div>
+                <div class="memo-body">
+                  <div class="memo-sender">Carol Davis</div>
+                  <div class="memo-title">Team Offsite Planning — RSVP Needed</div>
+                  <div class="memo-preview">The team offsite is scheduled for March 15. Please confirm your attendance by end of week…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Yesterday</span>
+                </div>
+              </div>
+              <!-- Read -->
+              <div class="memo-item">
+                <div class="memo-dot read"></div>
+                <div class="memo-body">
+                  <div class="memo-sender">Eve Martinez</div>
+                  <div class="memo-title">Updated Remote Work Policy</div>
+                  <div class="memo-preview">Effective April 1, all staff may work from home up to 3 days per week. Please read the full policy…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Mon</span>
+                  <span class="tag">hr</span>
+                </div>
+              </div>
+              <!-- Read -->
+              <div class="memo-item">
+                <div class="memo-dot read"></div>
+                <div class="memo-body">
+                  <div class="memo-sender">Frank Lee</div>
+                  <div class="memo-title">Security Audit Schedule</div>
+                  <div class="memo-preview">The annual security audit will take place March 20–22. IT access may be intermittent…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Sun</span>
+                  <span class="tag">it</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <div class="page-btn">‹</div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">›</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 06 · SENT
+       API: GET /api/memo/sent?page=1&limit=10  (auth required)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-sent">
+    <h2>06 · Sent</h2>
+    <div class="meta">
+      <span>GET /api/memo/sent</span>
+      Paginated list of memos sent by the authenticated user.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/sent</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox"><span class="icon">📥</span> Inbox</a>
+              <a href="#page-sent" class="active"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts"><span class="icon">📝</span> Drafts</a>
+              <a href="#page-compose"><span class="icon">✏️</span> Compose</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <div class="page-header">
+              <div>
+                <h1>Sent</h1>
+                <div class="subtitle">8 memos sent</div>
+              </div>
+              <a href="#page-compose" class="btn btn-secondary btn-sm">✏️ Compose</a>
+            </div>
+
+            <div class="card">
+              <div class="memo-item">
+                <div class="memo-dot read"></div>
+                <div class="memo-body">
+                  <div class="memo-sender">To: Bob Smith, Carol Davis</div>
+                  <div class="memo-title">Project Kickoff — Timeline &amp; Deliverables</div>
+                  <div class="memo-preview">Please find attached the project timeline. Deliverable 1 is due March 10. Let's sync on…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Today 9:00 AM</span>
+                  <span class="tag sent">Sent</span>
+                </div>
+              </div>
+              <div class="memo-item">
+                <div class="memo-dot read"></div>
+                <div class="memo-body">
+                  <div class="memo-sender">To: Eve Martinez</div>
+                  <div class="memo-title">Leave Request — March 18–19</div>
+                  <div class="memo-preview">I'd like to request annual leave for March 18 and 19. My work will be handed over to…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Yesterday</span>
+                  <span class="tag sent">Sent</span>
+                </div>
+              </div>
+              <div class="memo-item">
+                <div class="memo-dot read"></div>
+                <div class="memo-body">
+                  <div class="memo-sender">To: Frank Lee</div>
+                  <div class="memo-title">Access Request — Dev Server</div>
+                  <div class="memo-preview">Requesting elevated access to the development server for the upcoming sprint. Please approve at…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Mon</span>
+                  <span class="tag sent">Sent</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <div class="page-btn">‹</div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">›</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 07 · DRAFTS
+       API: GET /api/memo/drafts?page=1&limit=10  (auth required)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-drafts">
+    <h2>07 · Drafts</h2>
+    <div class="meta">
+      <span>GET /api/memo/drafts</span>
+      Memos saved as drafts (isDraft=true or no recipients yet).
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/drafts</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox"><span class="icon">📥</span> Inbox</a>
+              <a href="#page-sent"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts" class="active"><span class="icon">📝</span> Drafts <span style="margin-left:auto;background:#d4a01733;color:#d4a017;border-radius:20px;padding:1px 8px;font-size:11px;">2</span></a>
+              <a href="#page-compose"><span class="icon">✏️</span> Compose</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <div class="page-header">
+              <div>
+                <h1>Drafts</h1>
+                <div class="subtitle">2 unsent drafts</div>
+              </div>
+              <a href="#page-compose" class="btn btn-secondary btn-sm">✏️ New Draft</a>
+            </div>
+
+            <div class="card">
+              <div class="memo-item">
+                <div class="memo-dot" style="background:#d4a017;"></div>
+                <div class="memo-body">
+                  <div class="memo-sender" style="color:#d4a017;">Draft — No recipients yet</div>
+                  <div class="memo-title">Annual Department Report — Draft</div>
+                  <div class="memo-preview">This report covers Q1 and Q2 performance metrics for the engineering department…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Today 8:15 AM</span>
+                  <span class="tag draft">Draft</span>
+                </div>
+              </div>
+              <div class="memo-item">
+                <div class="memo-dot" style="background:#d4a017;"></div>
+                <div class="memo-body">
+                  <div class="memo-sender" style="color:#d4a017;">Draft — Saved</div>
+                  <div class="memo-title">Proposal: New Onboarding Process</div>
+                  <div class="memo-preview">I'd like to propose a revised onboarding process that reduces ramp-up time by 30%…</div>
+                </div>
+                <div class="memo-meta">
+                  <span class="memo-time">Fri</span>
+                  <span class="tag draft">Draft</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 08 · COMPOSE MEMO
+       API: POST /api/memo/send  →  creates & sends memo
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-compose">
+    <h2>08 · Compose Memo</h2>
+    <div class="meta">
+      <span>POST /api/memo/send</span>
+      Create and send a memo. Fields: title, content, tags, isDraft, sharedWith (user IDs).
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/compose</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox"><span class="icon">📥</span> Inbox</a>
+              <a href="#page-sent"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts"><span class="icon">📝</span> Drafts</a>
+              <a href="#page-compose" class="active"><span class="icon">✏️</span> Compose</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <div class="page-header">
+              <div><h1>New Memo</h1></div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-secondary btn-sm">Save Draft</button>
+                <button class="btn btn-primary btn-sm">Send →</button>
+              </div>
+            </div>
+
+            <div class="card" style="padding:20px;">
+              <div class="form-group">
+                <label>To — Recipients</label>
+                <div class="recipient-chips">
+                  <span class="chip">Bob Smith <span class="remove">×</span></span>
+                  <span class="chip">Carol Davis <span class="remove">×</span></span>
+                  <input type="text" placeholder="Search users to add…" style="border:none;outline:none;font-size:13px;flex:1;min-width:120px;background:transparent;" readonly />
+                </div>
+                <div class="text-xs text-muted mt-2">Uses GET /api/user/search to find recipients</div>
+              </div>
+
+              <div class="form-group">
+                <label>Subject / Title</label>
+                <input class="form-input filled" type="text" value="Q4 Budget Review — Action Required" readonly />
+              </div>
+
+              <div class="form-group">
+                <label>Content</label>
+                <textarea class="form-input" readonly>Please review the attached figures and respond by Friday with your department's allocation requests for Q4.
+
+Key points:
+- Total budget pool: $250,000
+- Department cap: $80,000
+- Deadline for submissions: March 10, 2026
+
+Let me know if you have questions.</textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Tags <span style="font-weight:400;color:#b0b0c0;">(comma-separated)</span></label>
+                <input class="form-input" type="text" placeholder="finance, q4, budget" readonly />
+              </div>
+
+              <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                <input type="checkbox" id="isDraft" />
+                <label for="isDraft" style="font-size:13px;color:#555570;cursor:pointer;">Save as draft (do not send yet)</label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 09 · VIEW MEMO (single)
+       API: GET /api/memo/:id  (auth required)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-view-memo">
+    <h2>09 · View Memo</h2>
+    <div class="meta">
+      <span>GET /api/memo/:id</span>
+      Full detail view of a single memo. Owner can also edit or delete.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/memo/64f9a3b2c1e2d40012345678</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox" class="active"><span class="icon">📥</span> Inbox</a>
+              <a href="#page-sent"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts"><span class="icon">📝</span> Drafts</a>
+              <a href="#page-compose"><span class="icon">✏️</span> Compose</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <!-- Back link -->
+            <div style="margin-bottom:16px;">
+              <a href="#page-inbox" style="font-size:13px;color:#6c63ff;text-decoration:none;">← Back to Inbox</a>
+            </div>
+
+            <div class="memo-view">
+              <div class="mv-subject">Q4 Budget Review — Action Required</div>
+
+              <div class="mv-meta">
+                <div class="avatar">BS</div>
+                <div class="from">
+                  <strong>Bob Smith</strong>
+                  <span>To: Alice Johnson, Carol Davis &nbsp;·&nbsp; March 4, 2026 10:42 AM</span>
+                </div>
+                <!-- Actions visible only to owner -->
+                <div style="margin-left:auto;display:flex;gap:8px;">
+                  <a href="#page-edit-memo" class="btn btn-secondary btn-sm">✏️ Edit</a>
+                  <button class="btn btn-danger btn-sm">🗑 Delete</button>
+                </div>
+              </div>
+
+              <div class="mv-body">
+                <p>Please review the attached figures and respond by Friday with your department's allocation requests for Q4.</p>
+                <br/>
+                <p><strong>Key points:</strong></p>
+                <ul style="margin-left:20px;margin-top:8px;line-height:1.8;">
+                  <li>Total budget pool: $250,000</li>
+                  <li>Department cap: $80,000</li>
+                  <li>Deadline for submissions: March 10, 2026</li>
+                </ul>
+                <br/>
+                <p>Let me know if you have any questions regarding the figures.</p>
+              </div>
+
+              <div class="mv-tags">
+                <span class="tag">finance</span>
+                <span class="tag">q4</span>
+                <span class="tag">budget</span>
+              </div>
+            </div>
+
+            <!-- Soft-delete note -->
+            <div style="margin-top:14px;text-align:right;">
+              <button class="btn btn-danger btn-sm" style="font-size:12px;">🚫 Remove from my inbox (soft delete)</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 10 · EDIT MEMO
+       API: PUT /api/memo/edit/:id  (auth, owner only)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-edit-memo">
+    <h2>10 · Edit Memo</h2>
+    <div class="meta">
+      <span>PUT /api/memo/edit/:id</span>
+      Edit an existing memo (owner only). Can update title, content, tags, recipients, draft status.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/memo/64f9a3b2c1e2d40012345678/edit</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox"><span class="icon">📥</span> Inbox</a>
+              <a href="#page-sent" class="active"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts"><span class="icon">📝</span> Drafts</a>
+              <a href="#page-compose"><span class="icon">✏️</span> Compose</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <div class="page-header">
+              <div>
+                <h1>Edit Memo</h1>
+                <div class="subtitle">Changes visible to all recipients</div>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-secondary btn-sm">Cancel</button>
+                <button class="btn btn-primary btn-sm">Save Changes</button>
+              </div>
+            </div>
+
+            <div class="alert alert-info">ℹ️ You are editing a sent memo. Recipients will see the updated version.</div>
+
+            <div class="card" style="padding:20px;">
+              <div class="form-group">
+                <label>To — Recipients</label>
+                <div class="recipient-chips">
+                  <span class="chip">Bob Smith <span class="remove">×</span></span>
+                  <span class="chip">Carol Davis <span class="remove">×</span></span>
+                  <input type="text" placeholder="Add more…" style="border:none;outline:none;font-size:13px;flex:1;min-width:100px;background:transparent;" readonly />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Subject / Title</label>
+                <input class="form-input filled" type="text" value="Q4 Budget Review — Action Required [UPDATED]" readonly />
+              </div>
+
+              <div class="form-group">
+                <label>Content</label>
+                <textarea class="form-input filled" readonly>Please review the attached figures and respond by Friday with your department's allocation requests for Q4.
+
+[UPDATED] The deadline has been extended to March 15, 2026.
+
+Key points:
+- Total budget pool: $250,000
+- Department cap: $80,000
+- Deadline: March 15, 2026 (extended)</textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Tags</label>
+                <input class="form-input filled" type="text" value="finance, q4, budget" readonly />
+              </div>
+
+              <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                <input type="checkbox" id="isDraftEdit" />
+                <label for="isDraftEdit" style="font-size:13px;color:#555570;">Revert to draft</label>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;padding:14px 16px;background:#fff0f0;border-radius:8px;border:1px solid #f8d8d8;">
+              <div style="font-size:13px;font-weight:600;color:#c62828;margin-bottom:8px;">⚠️ Danger Zone</div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-danger btn-sm">🚫 Soft Delete</button>
+                <button class="btn btn-danger btn-sm">🗑 Permanently Delete</button>
+              </div>
+              <div class="text-xs text-muted mt-2">Soft delete hides from your view. Permanent delete removes the memo for everyone.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 11 · USER PROFILE
+       API: GET /api/user/profile  ·  PUT /api/user/update  (auth required)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-profile">
+    <h2>11 · Profile</h2>
+    <div class="meta">
+      <span>GET /api/user/profile</span>
+      <span>PUT /api/user/update</span>
+      View and edit the authenticated user's own profile.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/profile</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox"><span class="icon">📥</span> Inbox</a>
+              <a href="#page-sent"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts"><span class="icon">📝</span> Drafts</a>
+              <a href="#page-compose"><span class="icon">✏️</span> Compose</a>
+              <div style="height:12px;"></div>
+              <a href="#page-users"><span class="icon">👥</span> Directory</a>
+              <a href="#page-profile" class="active"><span class="icon">👤</span> Profile</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <h1 style="font-size:20px;font-weight:700;margin-bottom:20px;">My Profile</h1>
+
+            <!-- Profile header -->
+            <div class="profile-header">
+              <div class="profile-avatar">AJ</div>
+              <div class="profile-info">
+                <h2>Alice Johnson</h2>
+                <p>alice@example.com</p>
+                <span class="profile-badge">✅ Verified</span>
+              </div>
+              <div style="margin-left:auto;text-align:right;">
+                <div class="text-xs text-muted">Role</div>
+                <div style="font-size:16px;font-weight:700;color:#6c63ff;">user</div>
+                <div class="text-xs text-muted mt-2">Member since</div>
+                <div style="font-size:13px;color:#555570;">Jan 15, 2026</div>
+              </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row">
+              <div class="stat-card">
+                <div class="stat-icon">📥</div>
+                <div class="stat-label">Memos Received</div>
+                <div class="stat-value">42</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📤</div>
+                <div class="stat-label">Memos Sent</div>
+                <div class="stat-value">18</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-label">Drafts</div>
+                <div class="stat-value">2</div>
+              </div>
+            </div>
+
+            <!-- Edit form -->
+            <div class="card" style="padding:20px;">
+              <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px;">Edit Profile</div>
+
+              <div class="form-group">
+                <label>Full Name</label>
+                <input class="form-input filled" type="text" value="Alice Johnson" readonly />
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input class="form-input filled" type="email" value="alice@example.com" readonly />
+              </div>
+
+              <button class="btn btn-primary" style="max-width:160px;">Save Changes</button>
+            </div>
+
+            <div style="margin-top:16px;padding:14px 16px;background:#fff0f0;border-radius:8px;border:1px solid #f8d8d8;">
+              <div style="font-size:13px;font-weight:600;color:#c62828;margin-bottom:4px;">Sign Out</div>
+              <button class="btn btn-danger btn-sm">🚪 Sign Out</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE 12 · USER DIRECTORY / SEARCH
+       API: GET /api/user/all  ·  GET /api/user/search?query=…  (auth required)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="page-users">
+    <h2>12 · User Directory</h2>
+    <div class="meta">
+      <span>GET /api/user/all</span>
+      <span>GET /api/user/search?query=…</span>
+      Browse all users (paginated) or search by name/email. Used to pick recipients when composing memos.
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">https://memo-app.example.com/users?query=bob</div>
+      </div>
+      <div class="browser-content">
+        <div class="app-shell">
+
+          <div class="app-sidebar">
+            <div class="logo">📋 <span>Memo</span>App</div>
+            <nav class="sidebar-nav">
+              <a href="#page-inbox"><span class="icon">📥</span> Inbox</a>
+              <a href="#page-sent"><span class="icon">📤</span> Sent</a>
+              <a href="#page-drafts"><span class="icon">📝</span> Drafts</a>
+              <a href="#page-compose"><span class="icon">✏️</span> Compose</a>
+              <div style="height:12px;"></div>
+              <a href="#page-users" class="active"><span class="icon">👥</span> Directory</a>
+              <a href="#page-profile"><span class="icon">👤</span> Profile</a>
+            </nav>
+            <div style="height:30px;"></div>
+            <div class="sidebar-user">
+              <div class="avatar">AJ</div>
+              <div><div class="name">Alice Johnson</div><div class="role">user</div></div>
+            </div>
+          </div>
+
+          <div class="page-content">
+            <div class="page-header">
+              <div>
+                <h1>User Directory</h1>
+                <div class="subtitle">All registered users · page 1 of 3</div>
+              </div>
+            </div>
+
+            <div class="search-bar">
+              <span class="icon">🔍</span>
+              <input type="text" value="bob" style="border:none;outline:none;font-size:14px;color:#1a1a2e;background:transparent;flex:1;" readonly />
+              <span class="text-xs text-muted">GET /api/user/search?query=bob</span>
+            </div>
+
+            <div class="card">
+              <div class="user-card">
+                <div class="avatar">BS</div>
+                <div class="info">
+                  <div class="name">Bob Smith</div>
+                  <div class="email">bob.smith@example.com</div>
+                </div>
+                <span class="role-badge">user</span>
+                <a href="#page-compose" class="btn btn-secondary btn-sm" style="margin-left:10px;">✉️ Send Memo</a>
+              </div>
+
+              <div class="user-card">
+                <div class="avatar" style="background:linear-gradient(135deg,#e040fb,#ab47bc)">CD</div>
+                <div class="info">
+                  <div class="name">Carol Davis</div>
+                  <div class="email">carol.davis@example.com</div>
+                </div>
+                <span class="role-badge">user</span>
+                <a href="#page-compose" class="btn btn-secondary btn-sm" style="margin-left:10px;">✉️ Send Memo</a>
+              </div>
+
+              <div class="user-card">
+                <div class="avatar" style="background:linear-gradient(135deg,#26a69a,#00897b)">EM</div>
+                <div class="info">
+                  <div class="name">Eve Martinez</div>
+                  <div class="email">eve.martinez@example.com</div>
+                </div>
+                <span class="role-badge" style="background:#e8f5e9;color:#2e7d32;">admin</span>
+                <a href="#page-compose" class="btn btn-secondary btn-sm" style="margin-left:10px;">✉️ Send Memo</a>
+              </div>
+
+              <div class="user-card">
+                <div class="avatar" style="background:linear-gradient(135deg,#ef5350,#b71c1c)">FL</div>
+                <div class="info">
+                  <div class="name">Frank Lee</div>
+                  <div class="email">frank.lee@example.com</div>
+                </div>
+                <span class="role-badge">user</span>
+                <a href="#page-compose" class="btn btn-secondary btn-sm" style="margin-left:10px;">✉️ Send Memo</a>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <div class="page-btn">‹</div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">›</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  /* Active TOC highlight on scroll */
+  const sections = document.querySelectorAll('.page-section');
+  const links    = document.querySelectorAll('#toc a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id  = entry.target.id;
+        const lnk = document.querySelector(`#toc a[href="#${id}"]`);
+        if (lnk) lnk.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
