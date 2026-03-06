@@ -15,7 +15,7 @@ const createMemo = async (req: Request, res: Response) => {
     }
     const draft = (sharedWith && sharedWith?.length === 0) ? true : isDraft ?? false; 
     console.log({ user: (req as AuthedRequest).user });
-    const newMemo = await memoQueries.createMemo(title, content, tags, (req as AuthedRequest)?.user, draft);
+    const newMemo = await memoQueries.createMemo(title, content, tags, (req as AuthedRequest)?.user, draft, sharedWith);
     return sendSuccessResponse(res, "Memo created successfully", newMemo, 201);     
   } catch (error) {
     console.log(error);

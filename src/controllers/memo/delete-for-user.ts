@@ -8,7 +8,7 @@ import userQueries from "../../utils/user-queries";
 
 const deleteMemoForUser = async (req: Request, res: Response) => {
   const userId = (req as AuthedRequest).user.id;
-  const { memoId } = req.params;
+  const { id: memoId } = req.params;
   try {
     if (!memoId) {
       return sendErrorResponse(res, "Memo ID is required", null, 400);

@@ -6,19 +6,19 @@ const permanentDelete = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const memoOwner = await memoQueries.getMemoOwner(id);
-    if (memoOwner?._id !== (req as any).user._id) {
-      sendErrorResponse(res, "Unauthorized", "You are not authorized to delete this memo", 401);
+    if (!memoOwner || memoOwner.toString() !== (req as any).user._id.toString()) {
+      return sendErrorResponse(res, "Unauthorized", "You are not authorized to delete this memo", 401);
     }
 
     const memo = await memoQueries.deleteMemo(id);
     if (!memo) {
-      sendErrorResponse(res, "Memo not found", "Memo not found", 404);
+      return sendErrorResponse(res, "Memo not found", "Memo not found", 404);
     }
 
-    sendSuccessResponse(res, "Memo deleted successfully", memo, 200);
+    return sendSuccessResponse(res, "Memo deleted successfully", memo, 200);
   } catch (error) {
     console.error(error);
-    sendErrorResponse(res, "Failed to delete memo", "Failed to delete memo", 500);
+    return sendErrorResponse(res, "Failed to delete memo", "Failed to delete memo", 500);
   }
 };
 

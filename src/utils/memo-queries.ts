@@ -8,7 +8,8 @@ const memoQueries = {
     content: string,
     tags: string[],
     owner: IUser,
-    isDraft?: boolean
+    isDraft?: boolean,
+    sharedWith?: string[]
   ) => {
     return await Memo.create({
       title,
@@ -16,6 +17,7 @@ const memoQueries = {
       tags,
       owner: owner._id,
       isDraft,
+      sharedWith,
     });
   },
 
